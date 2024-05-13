@@ -1,4 +1,4 @@
-# flisher_toolchange_obs_helper
+# toolchanger_obs_helper
 Scene changer for OBS Studio, triggered on Printer Toolchange
 
 The purpose of this python script is to trigger a scene change on OBS, when the printer initiate and complete a Toolchange.
