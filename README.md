@@ -1,6 +1,8 @@
 # flisher_toolchange_obs_helper
 Scene changer for OBS Studio, triggered on Printer Toolchange
 
+The purpose of this python script is to trigger a scene change on OBS, when the printer initiate and complete a Toolchange.
+
 # Disclaimer
 This is a WIP, unpolished, with some bad practice, poor error handling, etc...
 I ran it from my PC, should work from your printer directly but I would wait for a more polished version for that.
@@ -42,7 +44,7 @@ gcode:
   RESPOND TYPE=echo MSG='Toolchange Completed'
 ```
 ## Notes
-For this project, the ideal place to discuss the topic or suggest improvements would be on the (StealthChanger Discord)[https://discord.com/invite/jJs73c6vSc].
+For this project, the ideal place to discuss the topic or suggest improvements would be on the [StealthChanger Discord](https://discord.com/invite/jJs73c6vSc).
 I'm not planning a super fancy final tool, so if you want to take over the idea and make something big, i'll more than happy to have inspired someone.
 
 
