@@ -1,6 +1,6 @@
 obs:
   password: "aaabbbccc"
-  host: "192.168.2.147"
+  host: "192.168.2.122"
   port: 4455
   scene:
     ToolChanging: ToolChangingScene
@@ -8,3 +8,5 @@ obs:
 printer:
   host: "192.168.2.115"
   moonracker_port: 7125
+software:
+  debug_level: "INFO"

@@ -12,22 +12,10 @@ I ran it from my PC, should work from your printer directly but I would wait for
 Install the dependencies with `pip3 install -r requirements.txt`
 
 ## OBS and Printer Configuration
-It's still ugly, but you need to change the configuration for your OBS and Moonracker API in the python script directly:
-```python
-obs_password = "aaabbbccc"
-obs_host = "192.168.2.147"
-obs_port = 4455
-printer_ip = "192.168.2.115"
-printer_api_port = 7125
-```
+Configuration is done in config.yaml file.
+Variable names should be pretty self explanatory
 
-And the name of your OBS scene here.  The scene is the value on the right:
-```python
-  camera = {
-     "Toolchange" : "Toolchange",
-     "Printing" : "Printing",
-  }
-```
+Sidenote: it involve placing your websocket credential in clear.  It's not a good security practice but your OBS shouldn't be exposed to internet.
 
 ## Change to Klipper Macros (likely in your toolhead file)
 In order to create a trigger, you will need to modify your T0 and other Tx macros.

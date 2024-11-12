@@ -23,44 +23,49 @@ License:
     SOFTWARE.
 """
 
-from urllib import response
+#from urllib import response
 import websocket
-import json
-
 import sys
-import time
+import json
 import yaml
 import logging
+import signal
+
+from obswebsocket import obsws, requests
+
 logging.basicConfig(level=logging.DEBUG)
 
-sys.path.append('../')
 from obswebsocket import obsws, requests  # noqa: E402
-with open('config.yaml', 'r') as file:
-    config = yaml.safe_load(file)
 
-printer_ws_url = "ws://%s:%s/websocket?token=" % ( config['printer']['host'], str(config['printer']['moonracker_port']))
-def on_close(printer_ws, close_status, close_msg):
-  pass
+def on_close(ws, close_status, close_msg):
+    pass
 
-def on_error(printer_ws, error):
-  print("Websocket error: %s" % error)
+def on_error(ws, error):
+    logging.error("Websocket error: %s", error)
+    # Implement retry logic here
 
 def setCamera(cameraType):
-  obs_websocket.call(requests.SetCurrentProgramScene(sceneName=camera.get(config['obs']['scene'][cameraType])))
-              
-def on_message(printer_ws, msg):
-  response = json.loads(msg)
- 
-  if response['method'] == "notify_gcode_response":
-    print(json.dumps(response, indent=3))  
-    response_params_list = response.get("params")
-    for response_log in response_params_list:
+    try:
+        obs_websocket.call(requests.SetCurrentProgramScene(sceneName=config['obs']['scene'][cameraType]))
+    except Exception as e:
+        logging.error("Error setting camera scene: %s", e)
+
+def on_message(ws, msg):
+  try:
+    response = json.loads(msg)
+    # Handle specific message types
+    if response['method'] == "notify_gcode_response":
+      # ... existing logic for handling tool change messages ...
+      logging.debug(json.dumps(response, indent=3))
+      response_params_list = response.get("params")
+      for response_log in response_params_list:
         if response_log.startswith("echo: Toolchange Starting"):
-            setCamera("ToolChanging")
+          setCamera("ToolChanging")
         elif response_log.startswith("echo: Toolchange Completed"):
-            setCamera("Printing")
-  #else:
-  # print(json.dumps(response, indent=3))
+          setCamera("Printing")
+    # Add logic for handling other message types as needed
+  except Exception as e:
+    logging.error("Error processing message: %s", e)
 
 def on_open(printer_ws):
   print("on_open()...")
@@ -75,12 +80,39 @@ def on_open(printer_ws):
     "id": 4654
   }
 
-  #printer_ws.send(json.dumps(data))
+def connect_obs(host, port, password):
+    obs_ws = obsws(host, port, password)
+    try:
+        obs_ws.connect()
+        return obs_ws
+    except Exception as e:
+        logging.error("Error connecting to OBS websocket: %s", e)
+        sys.exit(1)
 
-printer_ws = websocket.WebSocketApp(url=printer_ws_url, on_close=on_close, on_error=on_error, on_message=on_message, on_open=on_open)
+# Handle keyboard interrupt (Ctrl+C)
+def handle_interrupt(sig, frame):
+    logging.info("Exiting...")
+    printer_ws.close()
+    obs_websocket.disconnect()
+    sys.exit(0)
 
-## OBS Websocket studd
-obs_websocket = obsws(config['obs']['host'], config['obs']['port'], config['obs']['password'])
-obs_websocket.connect()
+def main():
+    # Handle configuration file errors
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+    except FileNotFoundError:
+        logging.error("Error: Configuration file 'config.yaml' not found.")
+        sys.exit(1)
+    except yaml.YAMLError as e:
+        logging.error("Error: Failed to parse configuration file: %s", e)
+        sys.exit(1)
+    logging.basicConfig(level=config['software']['debug_level'])
+    # Connect to OBS websocket
+    obs_websocket = connect_obs(config['obs']['host'], config['obs']['port'], config['obs']['password'])
 
-printer_ws.run_forever()
+    printer_ws_url = "ws://%s:%s/websocket?token=" % (config['printer']['host'], str(config['printer']['moonracker_port']))
+    printer_ws = websocket.WebSocketApp(url=printer_ws_url, on_close=on_close, on_error=on_error, on_message=on_message, on_open=on_open)
+    printer_ws.run_forever()
+
+main()
