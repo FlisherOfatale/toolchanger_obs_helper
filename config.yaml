@@ -1,0 +1,10 @@
+obs:
+  password: "aaabbbccc"
+  host: "192.168.2.147"
+  port: 4455
+  scene:
+    ToolChanging: ToolChangingScene
+    Printing: PrintingScene
+printer:
+  host: "192.168.2.115"
+  moonracker_port: 7125
