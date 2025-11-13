@@ -37,6 +37,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 from obswebsocket import obsws, requests  # noqa: E402
 
+# Global variables
+obs_websocket = None
+config = None
+
 def on_close(ws, close_status, close_msg):
     pass
 
@@ -97,6 +101,7 @@ def handle_interrupt(sig, frame):
     sys.exit(0)
 
 def main():
+    global obs_websocket, config
     # Handle configuration file errors
     try:
         with open('config.yaml', 'r') as file:
