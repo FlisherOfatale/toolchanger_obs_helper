@@ -397,7 +397,7 @@ window.addEventListener('load', () => {
     if (savedConfig) {
         try {
             const config = JSON.parse(savedConfig);
-            document.getElementById('moonraker-host').value = config.moonrakerHost || 'localhost';
+            document.getElementById('moonraker-host').value = config.moonrakerHost || 'voron.local';
             document.getElementById('moonraker-port').value = config.moonrakerPort || '7125';
             document.getElementById('obs-host').value = config.obsHost || 'localhost';
             document.getElementById('obs-port').value = config.obsPort || '4455';
