@@ -594,6 +594,27 @@ async function selectCamera() {
     }
 }
 
+function resetConfig() {
+    if (!confirm('Reset saved configuration? This will clear stored values.')) {
+        return;
+    }
+    // Remove stored config from localStorage and cookie
+    try {
+        localStorage.removeItem('obs-scene-changer-config');
+        document.cookie = 'obsSceneChanger=; max-age=0; path=/';
+    } catch (e) {
+        console.error('Error clearing stored config:', e);
+    }
+
+    // Re-enable config inputs in case they were disabled
+    document.querySelectorAll('#config-section input, #config-section select').forEach(el => {
+        el.disabled = false;
+    });
+
+    // Reload to reset UI state
+    location.reload();
+}
+
 function toggleConfig() {
     const configSection = document.getElementById('config-section');
     const btn = document.getElementById('toggle-config-btn');
