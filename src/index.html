@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>🎥 Moonraker OBS Scene Changer</h1>
+    <h1>🎥 Flisher's Toolchanger Scene Switcher</h1>
     
-    <div class="status-container">
-        <div id="status-moonraker" class="status disconnected">
-            Moonraker: Disconnected
-        </div>
-        <div id="status-obs" class="status disconnected">
-            OBS: Disconnected
-        </div>
-    </div>
-
-    <div class="main-layout">
-        <div class="left-column">
+    
+        <div class="main-layout">
+            <div class="left-column">
+                <div class="status-container">
+                    <div id="status-moonraker" class="status disconnected">
+                        ✗ Moonraker: Disconnected
+                    </div>
+                    <div id="status-obs" class="status disconnected">
+                        ✗ OBS: Disconnected
+                    </div>
+                </div>
     <button id="toggle-config-btn" onclick="toggleConfig()" style="width: 100%; margin-bottom: 20px;">
         ⚙️ Show Configuration
     </button>
@@ -33,6 +33,8 @@
             
             <label for="moonraker-port" style="margin-top: 10px;">Port:</label>
             <input type="number" id="moonraker-port" value="7125" placeholder="7125">
+            
+            <button id="connect-moonraker-btn" onclick="toggleMoonrakerConnection()" style="width: 100%; margin-top: 15px;">Connect Moonraker</button>
         </div>
 
         <div class="config-group">
@@ -45,6 +47,8 @@
             
             <label for="obs-password" style="margin-top: 10px;">OBS Websocket Password:</label>
             <input type="password" id="obs-password" value="" placeholder="Leave blank if no password">
+            
+            <button id="connect-obs-btn" onclick="toggleOBSConnection()" style="width: 100%; margin-top: 15px;">Connect OBS</button>
         </div>
 
         <div class="config-group">
@@ -78,7 +82,6 @@
             </div>
         </div>
 
-        <button id="connect-btn" onclick="toggleConnection()">Connect</button>
         <button onclick="resetConfig()" style="background-color: #8b4513; width: 100%; margin-top: 10px;">🔄 Reset Configuration</button>
     </div>
 

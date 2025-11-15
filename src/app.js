@@ -314,94 +314,96 @@ function connectMoonraker() {
     };
 }
 
-async function toggleConnection() {
-    const btn = document.getElementById('connect-btn');
-    const bothConnected = obs !== null && moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN;
-    const anyConnected = obs !== null || (moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN);
+async function toggleOBSConnection() {
+    const btn = document.getElementById('connect-obs-btn');
     
-    if (!anyConnected) {
-        // Connect both
+    if (obs !== null) {
+        // Disconnect OBS
+        btn.disabled = true;
+        await obs.disconnect();
+        obs = null;
+        addLog('Disconnected from OBS', 'info');
+        btn.textContent = 'Connect OBS';
+        updateStatus(moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN, false);
+        btn.disabled = false;
+        
+        // Re-enable OBS config inputs
+        document.getElementById('obs-host').disabled = false;
+        document.getElementById('obs-port').disabled = false;
+        document.getElementById('obs-password').disabled = false;
+    } else {
+        // Connect OBS
         btn.disabled = true;
         btn.textContent = 'Connecting...';
-        addLog('Starting connection...', 'info');
+        addLog('Connecting to OBS...', 'info');
         
         const obsConnected = await connectOBS();
-        updateStatus(false, obsConnected);
-        connectMoonraker();
+        updateStatus(moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN, obsConnected);
         
-        isConnected = true;
-        updateButtonText();
+        if (obsConnected) {
+            btn.textContent = 'Disconnect OBS';
+            // Disable OBS config inputs while connected
+            document.getElementById('obs-host').disabled = true;
+            document.getElementById('obs-port').disabled = true;
+            document.getElementById('obs-password').disabled = true;
+        } else {
+            btn.textContent = 'Connect OBS';
+        }
+        btn.disabled = false;
+    }
+}
+
+async function toggleMoonrakerConnection() {
+    const btn = document.getElementById('connect-moonraker-btn');
+    
+    if (moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN) {
+        // Disconnect Moonraker
+        btn.disabled = true;
+        moonrakerWs.close();
+        moonrakerWs = null;
+        addLog('Disconnected from Moonraker', 'info');
+        btn.textContent = 'Connect Moonraker';
+        updateStatus(false, obs !== null);
         btn.disabled = false;
         
-        // Disable config inputs while connected, but keep scene selectors enabled
-        document.querySelectorAll('#config-section input, #config-section select').forEach(input => {
-            if (input.id !== 'scene-toolchanging' && input.id !== 'scene-printing') {
-                input.disabled = true;
-            }
-        });
-        
-        // Hide configuration section on successful connect
-        hideConfiguration();
-    } else if (!bothConnected) {
-        // Reconnect missing connection
+        // Re-enable Moonraker config inputs
+        document.getElementById('moonraker-host').disabled = false;
+        document.getElementById('moonraker-port').disabled = false;
+    } else {
+        // Connect Moonraker
         btn.disabled = true;
         btn.textContent = 'Connecting...';
+        addLog('Connecting to Moonraker...', 'info');
         
-        if (!obs) {
-            addLog('Reconnecting to OBS...', 'info');
-            const obsConnected = await connectOBS();
-            updateStatus(moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN, obsConnected);
-        }
+        connectMoonraker();
         
-        if (!moonrakerWs || moonrakerWs.readyState !== WebSocket.OPEN) {
-            addLog('Reconnecting to Moonraker...', 'info');
-            connectMoonraker();
-        }
-        
-        updateButtonText();
+        // Disable Moonraker config inputs while connecting
+        document.getElementById('moonraker-host').disabled = true;
+        document.getElementById('moonraker-port').disabled = true;
+        btn.textContent = 'Disconnect Moonraker';
         btn.disabled = false;
-    } else {
-        // Disconnect all
-        isConnected = false;
-        
-        if (obs) {
-            await obs.disconnect();
-            obs = null;
-            addLog('Disconnected from OBS', 'info');
-        }
-        
-        if (moonrakerWs) {
-            moonrakerWs.close();
-            moonrakerWs = null;
-            addLog('Disconnected from Moonraker', 'info');
-        }
-        
-        updateStatus(false, false);
-        btn.textContent = 'Connect';
-        
-        // Enable all config inputs
-        document.querySelectorAll('#config-section input, #config-section select').forEach(input => input.disabled = false);
     }
 }
 
 function updateButtonText() {
-    const btn = document.getElementById('connect-btn');
-    const obsConnected = obs !== null;
-    const moonrakerConnected = moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN;
+    const obsBtn = document.getElementById('connect-obs-btn');
+    const moonrakerBtn = document.getElementById('connect-moonraker-btn');
     
-    if (obsConnected && moonrakerConnected) {
-        btn.textContent = 'Disconnect All';
-    } else if (!obsConnected && !moonrakerConnected) {
-        btn.textContent = 'Connect';
-    } else if (!obsConnected) {
-        btn.textContent = 'Reconnect OBS';
-    } else if (!moonrakerConnected) {
-        btn.textContent = 'Reconnect Moonraker';
+    if (obs !== null) {
+        obsBtn.textContent = 'Disconnect OBS';
+    } else {
+        obsBtn.textContent = 'Connect OBS';
+    }
+    
+    if (moonrakerWs !== null && moonrakerWs.readyState === WebSocket.OPEN) {
+        moonrakerBtn.textContent = 'Disconnect Moonraker';
+    } else {
+        moonrakerBtn.textContent = 'Connect Moonraker';
     }
 }
 
-// Load saved configuration from localStorage
-window.addEventListener('load', () => {
+// Load saved configuration from localStorage and attempt auto-connect when present
+window.addEventListener('load', async () => {
     const savedConfig = localStorage.getItem('obs-scene-changer-config');
     if (savedConfig) {
         try {
@@ -411,7 +413,7 @@ window.addEventListener('load', () => {
             document.getElementById('obs-host').value = config.obsHost || 'localhost';
             document.getElementById('obs-port').value = config.obsPort || '4455';
             document.getElementById('obs-password').value = config.obsPassword || '';
-            
+
             // Set scene selections (will need options to be populated first)
             if (config.sceneToolChanging) {
                 const toolChangingSelect = document.getElementById('scene-toolchanging');
@@ -421,7 +423,7 @@ window.addEventListener('load', () => {
                 option.selected = true;
                 toolChangingSelect.appendChild(option);
             }
-            
+
             if (config.scenePrinting) {
                 const printingSelect = document.getElementById('scene-printing');
                 const option = document.createElement('option');
@@ -430,8 +432,41 @@ window.addEventListener('load', () => {
                 option.selected = true;
                 printingSelect.appendChild(option);
             }
-            
+
             addLog('Loaded saved configuration', 'info');
+
+            // Hide config then attempt to auto-connect
+            hideConfiguration();
+            addLog('Attempting to auto-connect to OBS and Moonraker...', 'info');
+
+            // Try connecting to OBS first
+            try {
+                const obsConnected = await connectOBS();
+                if (obsConnected) {
+                    // Update OBS connect button and disable OBS inputs
+                    const obsBtn = document.getElementById('connect-obs-btn');
+                    if (obsBtn) obsBtn.textContent = 'Disconnect OBS';
+                    document.getElementById('obs-host').disabled = true;
+                    document.getElementById('obs-port').disabled = true;
+                    document.getElementById('obs-password').disabled = true;
+                }
+            } catch (e) {
+                console.error('Auto-connect OBS failed:', e);
+            }
+
+            // Then connect to Moonraker
+            try {
+                connectMoonraker();
+                // disable moonraker inputs while connecting
+                document.getElementById('moonraker-host').disabled = true;
+                document.getElementById('moonraker-port').disabled = true;
+            } catch (e) {
+                console.error('Auto-connect Moonraker failed:', e);
+            }
+
+            // Refresh button labels
+            updateButtonText();
+
         } catch (e) {
             console.error('Error loading config:', e);
         }
@@ -581,20 +616,11 @@ function hideConfiguration() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const savedConfig = localStorage.getItem('obs-scene-changer-config');
     
     if (savedConfig) {
-        // Hide config section initially if we have saved settings
-        hideConfiguration();
-        
-        addLog('Found saved configuration. Attempting to connect...', 'info');
-        
-        // Wait a moment for the UI to settle
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Attempt to auto-connect
-        await toggleConnection();
+        addLog('Found saved configuration.', 'info');
     } else {
         addLog('Application ready. Configure settings and click Connect.', 'info');
     }
