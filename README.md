@@ -6,20 +6,13 @@ The purpose of this python script is to trigger a scene change on OBS, when the 
 # Disclaimer
 * This is a work in progress 
 * This project is partially vibe coded with Github Copilot AI Agent
-* There 
-*
+* Configuration, including your OBS Websocket password, will be strored in plain text inside your browser.  Note that there is no password by default.
 
-I ran it from my PC, should work from your printer directly but I would wait for a more polished version for that.
+Caveats:
+* This expect the page to be loaded from an http server because by default, Moonracker isn't configured with HTTPS/WSS Support and browser enforce type match.
+* I run it from VS Code live preview.  Will release something hosting on our Pi at some point in time.
 
-# Configuration
-## Depedencies
-Install the dependencies with `pip3 install -r requirements.txt`
-
-## OBS and Printer Configuration
-Configuration is done in config.yaml file.
-Variable names should be pretty self explanatory
-
-Sidenote: it involve placing your websocket credential in clear.  It's not a good security practice but your OBS shouldn't be exposed to internet.
+# IMPORTANT CONFIGURATION CHANGE 
 
 ## Change to Klipper Macros (likely in your toolhead file)
 In order to create a trigger, you will need to modify your T0 and other Tx macros.
@@ -35,12 +28,14 @@ gcode:
   M400
   RESPOND TYPE=echo MSG='Toolchange Completed'
 ```
+
+You can youse whatever text you want, this text is configurable in the configuration option from my tool.  
+
+### Todos:
+* Add webserver for Pi and related script automation
+* Add WSS support when using HTTPS
+* improve documentation
+* Add ability to have additional trigger + scene configurations.
+
 ## Notes
 For this project, the ideal place to discuss the topic or suggest improvements would be on the [StealthChanger Discord](https://discord.com/invite/jJs73c6vSc).
-I'm not planning a super fancy final tool, so if you want to take over the idea and make something big, i'll more than happy to have inspired someone.
-
-
-
-## Dependencies and Credits
-* https://github.com/Elektordi/obs-websocket-py/
-* https://github.com/seho85/MoonrakerClientApiExamples/
