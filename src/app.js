@@ -113,6 +113,11 @@ async function refreshScenes() {
         const response = await obs.call('GetSceneList');
         const scenes = response.scenes;
         
+        if (!scenes || scenes.length === 0) {
+            addLog('No scenes found in OBS', 'warn');
+            return;
+        }
+        
         // Get current selections
         const currentToolChanging = document.getElementById('scene-toolchanging').value;
         const currentPrinting = document.getElementById('scene-printing').value;
@@ -328,8 +333,12 @@ async function toggleConnection() {
         updateButtonText();
         btn.disabled = false;
         
-        // Disable inputs while connected
-        document.querySelectorAll('input, select').forEach(input => input.disabled = true);
+        // Disable config inputs while connected, but keep scene selectors enabled
+        document.querySelectorAll('#config-section input, #config-section select').forEach(input => {
+            if (input.id !== 'scene-toolchanging' && input.id !== 'scene-printing') {
+                input.disabled = true;
+            }
+        });
         
         // Hide configuration section on successful connect
         hideConfiguration();
@@ -370,8 +379,8 @@ async function toggleConnection() {
         updateStatus(false, false);
         btn.textContent = 'Connect';
         
-        // Enable inputs
-        document.querySelectorAll('input, select').forEach(input => input.disabled = false);
+        // Enable all config inputs
+        document.querySelectorAll('#config-section input, #config-section select').forEach(input => input.disabled = false);
     }
 }
 
