@@ -19,19 +19,19 @@ function updateStatus(moonrakerConnected, obsConnected) {
     const obsStatus = document.getElementById('status-obs');
     
     if (moonrakerConnected) {
-        moonrakerStatus.textContent = '✓ Moonraker: Connected';
+        moonrakerStatus.innerHTML = '✓ Moonraker: Connected';
         moonrakerStatus.className = 'status connected';
     } else {
-        moonrakerStatus.textContent = '✗ Moonraker: Disconnected';
         moonrakerStatus.className = 'status disconnected';
+        moonrakerStatus.innerHTML = '✗ Moonraker: Disconnected<br><button class="status-action" onclick="toggleMoonrakerConnection()">Connect</button>';
     }
     
     if (obsConnected) {
-        obsStatus.textContent = '✓ OBS: Connected';
+        obsStatus.innerHTML = '✓ OBS: Connected';
         obsStatus.className = 'status connected';
     } else {
-        obsStatus.textContent = '✗ OBS: Disconnected';
         obsStatus.className = 'status disconnected';
+        obsStatus.innerHTML = '✗ OBS: Disconnected<br><button class="status-action" onclick="toggleOBSConnection()">Connect</button>';
     }
 }
 
@@ -49,11 +49,25 @@ async function connectOBS() {
         
         // Automatically refresh scenes after connecting
         await refreshScenes();
-        
-        // Update virtual camera button state
-        await updateVirtualCameraButton();
-        
-        // Automatically start camera preview
+
+        // Ensure OBS Virtual Camera is running. If not active, start it.
+        try {
+            const vcStatus = await obs.call('GetVirtualCamStatus');
+            if (!vcStatus || !vcStatus.outputActive) {
+                addLog('OBS Virtual Camera is not active. Starting it now...', 'info');
+                try {
+                    await obs.call('StartVirtualCam');
+                    addLog('OBS Virtual Camera started', 'success');
+                } catch (e) {
+                    addLog(`Failed to start OBS Virtual Camera: ${e.message}`, 'error');
+                    console.error('StartVirtualCam error:', e);
+                }
+            }
+        } catch (e) {
+            console.error('Error checking virtual camera status:', e);
+        }
+
+        // Automatically start camera preview if virtual camera active
         await autoStartCameraPreview();
         
         return true;
@@ -65,22 +79,7 @@ async function connectOBS() {
     }
 }
 
-async function updateVirtualCameraButton() {
-    if (!obs) return;
-    
-    try {
-        const vcStatus = await obs.call('GetVirtualCamStatus');
-        const btn = document.getElementById('toggle-obs-camera-btn');
-        
-        if (vcStatus.outputActive) {
-            btn.textContent = 'Stop OBS Virtual Camera';
-        } else {
-            btn.textContent = 'Start OBS Virtual Camera';
-        }
-    } catch (error) {
-        console.error('Error checking virtual camera status:', error);
-    }
-}
+// virtual camera is now managed automatically on connect; remove manual UI update helper
 
 async function autoStartCameraPreview() {
     // Check if virtual camera is already running
@@ -491,35 +490,6 @@ function saveConfig() {
 document.querySelectorAll('input, select').forEach(element => {
     element.addEventListener('change', saveConfig);
 });
-
-async function toggleOBSVirtualCamera() {
-    const btn = document.getElementById('toggle-obs-camera-btn');
-    
-    if (!obs) {
-        addLog('Please connect to OBS first', 'error');
-        return;
-    }
-    
-    try {
-        // Check current virtual camera status
-        const vcStatus = await obs.call('GetVirtualCamStatus');
-        
-        if (!vcStatus.outputActive) {
-            // Start OBS Virtual Camera
-            await obs.call('StartVirtualCam');
-            btn.textContent = 'Stop OBS Virtual Camera';
-            addLog('OBS Virtual Camera started', 'success');
-        } else {
-            // Stop OBS Virtual Camera
-            await obs.call('StopVirtualCam');
-            btn.textContent = 'Start OBS Virtual Camera';
-            addLog('OBS Virtual Camera stopped', 'success');
-        }
-    } catch (error) {
-        addLog(`Virtual camera error: ${error.message}`, 'error');
-        console.error('Virtual camera error:', error);
-    }
-}
 
 async function toggleCameraPreview() {
     const btn = document.getElementById('toggle-preview-btn');

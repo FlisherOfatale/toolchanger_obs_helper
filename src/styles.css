@@ -125,6 +125,12 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Ensure the configuration toggle button sits flush against the status area */
+#toggle-config-btn {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 .status-container {
     display: flex;
     flex-direction: column;
@@ -137,6 +143,23 @@ button:disabled {
     border-radius: 8px;
     text-align: center;
     font-weight: bold;
+}
+
+/* small action button inside status boxes */
+.status .status-action {
+    margin-top: 8px;
+    display: inline-block;
+    padding: 6px 10px;
+    font-size: 13px;
+    background-color: #0e639c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.status .status-action:hover {
+    background-color: #1177bb;
 }
 
 .status.disconnected {

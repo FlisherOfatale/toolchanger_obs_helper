@@ -1,127 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Moonraker OBS Scene Changer</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <h1>🎥 Flisher's Toolchanger Scene Switcher</h1>
-    
-    
-        <div class="main-layout">
-            <div class="left-column">
-                <div class="status-container">
-                    <div id="status-moonraker" class="status disconnected">
-                        ✗ Moonraker: Disconnected
-                    </div>
-                    <div id="status-obs" class="status disconnected">
-                        ✗ OBS: Disconnected
-                    </div>
-                </div>
-        <button id="toggle-config-btn" onclick="toggleConfig()" style="width: 100%; margin-bottom: 20px;">
+
+    <div class="main-layout">
+      <div class="left-column">
+        <div class="status-container">
+          <div id="status-moonraker" class="status disconnected">
+            ✗ Moonraker: Disconnected
+          </div>
+          <div id="status-obs" class="status disconnected">
+            ✗ OBS: Disconnected
+          </div>
+          <button
+            id="toggle-config-btn"
+            onclick="toggleConfig()"
+            style="width: 100%; margin-bottom: 20px"
+          >
             ⚙️ Show Configuration
-        </button>
-    <div class="config-section" id="config-section">
-        <h2>Configuration</h2>
-        
-        <div class="config-group">
-            <h3 style="color: #ce9178; margin-bottom: 10px;">Moonraker Settings</h3>
+          </button>
+        </div>
+
+        <div class="config-section" id="config-section">
+          <h2>Configuration</h2>
+
+          <div class="config-group">
+            <h3 style="color: #ce9178; margin-bottom: 10px">
+              Moonraker Settings
+            </h3>
             <label for="moonraker-host">Host:</label>
-            <input type="text" id="moonraker-host" value="voron.local" placeholder="e.g., 192.168.1.100">
-            
-            <label for="moonraker-port" style="margin-top: 10px;">Port:</label>
-            <input type="number" id="moonraker-port" value="7125" placeholder="7125">
-            
-            <button id="connect-moonraker-btn" onclick="toggleMoonrakerConnection()" style="width: 100%; margin-top: 15px;">Connect Moonraker</button>
-        </div>
+            <input
+              type="text"
+              id="moonraker-host"
+              value="voron.local"
+              placeholder="e.g., 192.168.1.100"
+            />
 
-        <div class="config-group">
-            <h3 style="color: #ce9178; margin-bottom: 10px;">OBS WebSocket Settings</h3>
+            <label for="moonraker-port" style="margin-top: 10px">Port:</label>
+            <input
+              type="number"
+              id="moonraker-port"
+              value="7125"
+              placeholder="7125"
+            />
+
+            <button
+              id="connect-moonraker-btn"
+              onclick="toggleMoonrakerConnection()"
+              style="width: 100%; margin-top: 15px"
+            >
+              Connect Moonraker
+            </button>
+          </div>
+
+          <div class="config-group">
+            <h3 style="color: #ce9178; margin-bottom: 10px">
+              OBS WebSocket Settings
+            </h3>
             <label for="obs-host">Host:</label>
-            <input type="text" id="obs-host" value="localhost" placeholder="localhost">
-            
-            <label for="obs-port" style="margin-top: 10px;">Port:</label>
-            <input type="number" id="obs-port" value="4455" placeholder="4455">
-            
-            <label for="obs-password" style="margin-top: 10px;">OBS Websocket Password:</label>
-            <input type="password" id="obs-password" value="" placeholder="Leave blank if no password">
-            
-            <button id="connect-obs-btn" onclick="toggleOBSConnection()" style="width: 100%; margin-top: 15px;">Connect OBS</button>
-        </div>
+            <input
+              type="text"
+              id="obs-host"
+              value="localhost"
+              placeholder="localhost"
+            />
 
-        <div class="config-group">
-            <h3 style="color: #ce9178; margin-bottom: 10px;">Scene Names</h3>
-            <p style="font-size: 12px; color: #9cdcfe; margin-bottom: 10px;">Connect to OBS first, then click "Refresh Scenes" to load available scenes</p>
-            <button id="refresh-scenes-btn" onclick="refreshScenes()" style="width: auto; margin-bottom: 15px;">
-                🔄 Refresh Scenes from OBS
+            <label for="obs-port" style="margin-top: 10px">Port:</label>
+            <input
+              type="number"
+              id="obs-port"
+              value="4455"
+              placeholder="4455"
+            />
+
+            <label for="obs-password" style="margin-top: 10px"
+              >OBS Websocket Password:</label
+            >
+            <input
+              type="password"
+              id="obs-password"
+              value=""
+              placeholder="Leave blank if no password"
+            />
+
+            <button
+              id="connect-obs-btn"
+              onclick="toggleOBSConnection()"
+              style="width: 100%; margin-top: 15px"
+            >
+              Connect OBS
+            </button>
+          </div>
+
+          <div class="config-group">
+            <h3 style="color: #ce9178; margin-bottom: 10px">Scene Names</h3>
+            <p style="font-size: 12px; color: #9cdcfe; margin-bottom: 10px">
+              Connect to OBS first, then click "Refresh Scenes" to load
+              available scenes
+            </p>
+            <button
+              id="refresh-scenes-btn"
+              onclick="refreshScenes()"
+              style="width: auto; margin-bottom: 15px"
+            >
+              🔄 Refresh Scenes from OBS
             </button>
             <div class="scene-input-group">
-                <label for="scene-toolchanging">Tool Changing Scene:</label>
-                <div style="display: flex; gap: 10px;">
-                    <select id="scene-toolchanging" style="flex: 1;">
-                        <option value="">-- Select Scene --</option>
-                    </select>
-                    <button onclick="switchToScene('toolchanging')" style="width: auto; padding: 8px 15px; margin: 0;">
-                        Switch
-                    </button>
-                </div>
+              <label for="scene-toolchanging">Tool Changing Scene:</label>
+              <div style="display: flex; gap: 10px">
+                <select id="scene-toolchanging" style="flex: 1">
+                  <option value="">-- Select Scene --</option>
+                </select>
+                <button
+                  onclick="switchToScene('toolchanging')"
+                  style="width: auto; padding: 8px 15px; margin: 0"
+                >
+                  Switch
+                </button>
+              </div>
             </div>
-            
+
             <div class="scene-input-group">
-                <label for="scene-printing">Printing Scene:</label>
-                <div style="display: flex; gap: 10px;">
-                    <select id="scene-printing" style="flex: 1;">
-                        <option value="">-- Select Scene --</option>
-                    </select>
-                    <button onclick="switchToScene('printing')" style="width: auto; padding: 8px 15px; margin: 0;">
-                        Switch
-                    </button>
-                </div>
+              <label for="scene-printing">Printing Scene:</label>
+              <div style="display: flex; gap: 10px">
+                <select id="scene-printing" style="flex: 1">
+                  <option value="">-- Select Scene --</option>
+                </select>
+                <button
+                  onclick="switchToScene('printing')"
+                  style="width: auto; padding: 8px 15px; margin: 0"
+                >
+                  Switch
+                </button>
+              </div>
             </div>
+          </div>
+
+          <button
+            onclick="resetConfig()"
+            style="background-color: #8b4513; width: 100%; margin-top: 10px"
+          >
+            🔄 Reset Configuration
+          </button>
         </div>
 
-        <button onclick="resetConfig()" style="background-color: #8b4513; width: 100%; margin-top: 10px;">🔄 Reset Configuration</button>
-    </div>
-
-    <div class="config-section">
-        <h2>Activity Log</h2>
-        <div id="log" class="log"></div>
-    </div>
+        <div class="config-section">
+          <h2>Activity Log</h2>
+          <div id="log" class="log"></div>
         </div>
+      </div>
 
-        <div class="right-column">
-    <div class="config-section">
-        <h2>Scene Control</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-            <button id="switch-toolchanging-btn" onclick="quickSwitchScene('toolchanging')" style="margin: 0;">
-                🔧 Tool Changing
+      <div class="right-column">
+        <div class="config-section">
+          <h2>Scene Control</h2>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 10px;
+              margin-bottom: 15px;
+            "
+          >
+            <button
+              id="switch-toolchanging-btn"
+              onclick="quickSwitchScene('toolchanging')"
+              style="margin: 0"
+            >
+              🔧 Tool Changing
             </button>
-            <button id="switch-printing-btn" onclick="quickSwitchScene('printing')" style="margin: 0;">
-                🖨️ Printing
+            <button
+              id="switch-printing-btn"
+              onclick="quickSwitchScene('printing')"
+              style="margin: 0"
+            >
+              🖨️ Printing
             </button>
-        </div>
-        <button id="toggle-auto-switch-btn" onclick="toggleAutoSwitch()" style="width: 100%; margin-bottom: 10px;">
+          </div>
+          <button
+            id="toggle-auto-switch-btn"
+            onclick="toggleAutoSwitch()"
+            style="width: 100%; margin-bottom: 10px"
+          >
             🔒 Disable Auto-Switch
-        </button>
-    </div>
+          </button>
+        </div>
 
-    <div class="config-section">
-        <h2>Camera Preview</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <button id="toggle-obs-camera-btn" onclick="toggleOBSVirtualCamera()" style="flex: 1;">Start OBS Virtual Camera</button>
-            <button id="toggle-preview-btn" onclick="toggleCameraPreview()" style="flex: 1;">Show Preview</button>
-        </div>
-        <div id="camera-container">
+        <div class="config-section">
+          <h2>Camera Preview</h2>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px">
+            <button
+              id="toggle-preview-btn"
+              onclick="toggleCameraPreview()"
+              style="flex: 1"
+            >
+              Show Preview
+            </button>
+          </div>
+          <div id="camera-container">
             <video id="camera-preview" autoplay playsinline></video>
-            <div id="camera-status">Enable OBS Virtual Camera and click "Show Preview"</div>
+            <div id="camera-status">
+              Enable OBS Virtual Camera and click "Show Preview"
+            </div>
+          </div>
         </div>
-    </div>
-        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/obs-websocket-js@5.0.3/dist/obs-ws.min.js"></script>
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
