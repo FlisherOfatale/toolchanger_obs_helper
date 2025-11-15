@@ -267,15 +267,18 @@ function connectMoonraker() {
             
             if (response.method === 'notify_gcode_response') {
                 const params = response.params || [];
+                // Get configured trigger variants (plain and prefixed with 'echo: ')
+                const triggers = getToolchangeTriggers();
                 params.forEach(log => {
-                    if (log.startsWith('echo: Toolchange Starting')) {
+                    const responseLog = String(log || '');
+                    if (triggers.startVariants.some(v => responseLog.startsWith(v))) {
                         addLog('Tool change detected: Starting', 'info');
                         if (autoSwitchEnabled) {
                             setCamera('ToolChanging');
                         } else {
                             addLog('Auto-switch disabled - scene not changed', 'info');
                         }
-                    } else if (log.startsWith('echo: Toolchange Completed')) {
+                    } else if (triggers.completeVariants.some(v => responseLog.startsWith(v))) {
                         addLog('Tool change detected: Completed', 'info');
                         if (autoSwitchEnabled) {
                             setCamera('Printing');
@@ -432,10 +435,19 @@ window.addEventListener('load', async () => {
                 printingSelect.appendChild(option);
             }
 
+            // Load saved trigger texts if present
+            if (config.triggerToolChanging && document.getElementById('trigger-toolchanging')) {
+                document.getElementById('trigger-toolchanging').value = config.triggerToolChanging;
+            }
+            if (config.triggerPrinting && document.getElementById('trigger-printing')) {
+                document.getElementById('trigger-printing').value = config.triggerPrinting;
+            }
+
             addLog('Loaded saved configuration', 'info');
 
-            // Hide config then attempt to auto-connect
-            hideConfiguration();
+            // Keep configuration visible so trigger inputs are accessible by default
+            const toggleBtn = document.getElementById('toggle-config-btn');
+            if (toggleBtn) toggleBtn.textContent = '⚙️ Hide Configuration';
             addLog('Attempting to auto-connect to OBS and Moonraker...', 'info');
 
             // Try connecting to OBS first
@@ -483,7 +495,30 @@ function saveConfig() {
         sceneToolChanging: document.getElementById('scene-toolchanging').value,
         scenePrinting: document.getElementById('scene-printing').value
     };
+    // Include tool-change trigger texts if present
+    const triggerToolChangingEl = document.getElementById('trigger-toolchanging');
+    const triggerPrintingEl = document.getElementById('trigger-printing');
+    if (triggerToolChangingEl) config.triggerToolChanging = triggerToolChangingEl.value;
+    if (triggerPrintingEl) config.triggerPrinting = triggerPrintingEl.value;
+
     localStorage.setItem('obs-scene-changer-config', JSON.stringify(config));
+    document.cookie = `obsSceneChanger=${encodeURIComponent(JSON.stringify(config))};max-age=${60*60*24*365};path=/`;
+}
+
+// Helper: get the configured trigger strings and return arrays of strings to match against logs
+function getToolchangeTriggers() {
+    const prefix = 'echo: ';
+    const startTrigger = (document.getElementById('trigger-toolchanging') && document.getElementById('trigger-toolchanging').value) || 'Toolchange Starting';
+    const completeTrigger = (document.getElementById('trigger-printing') && document.getElementById('trigger-printing').value) || 'Toolchange Completed';
+
+    // Accept both the plain trigger and the prefixed version
+    const startVariants = [startTrigger, prefix + startTrigger];
+    const completeVariants = [completeTrigger, prefix + completeTrigger];
+
+    return {
+        startVariants,
+        completeVariants
+    };
 }
 
 // Save config when inputs or selects change
@@ -609,10 +644,37 @@ function hideConfiguration() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     const savedConfig = localStorage.getItem('obs-scene-changer-config');
-    
+    let config = null;
     if (savedConfig) {
-        addLog('Found saved configuration.', 'info');
+        try {
+            config = JSON.parse(savedConfig);
+        } catch (e) {
+            console.error('Error parsing saved config:', e);
+            config = null;
+        }
+    }
+
+    // If we have saved trigger texts, populate the inputs
+    if (config) {
+        if (config.triggerToolChanging && document.getElementById('trigger-toolchanging')) {
+            document.getElementById('trigger-toolchanging').value = config.triggerToolChanging;
+        }
+        if (config.triggerPrinting && document.getElementById('trigger-printing')) {
+            document.getElementById('trigger-printing').value = config.triggerPrinting;
+        }
+        addLog('Loaded saved configuration.', 'info');
     } else {
         addLog('Application ready. Configure settings and click Connect.', 'info');
+    }
+
+    // Ensure the toggle button reflects current visibility
+    const toggleBtn = document.getElementById('toggle-config-btn');
+    const configSection = document.getElementById('config-section');
+    if (toggleBtn && configSection) {
+        if (configSection.classList.contains('hidden')) {
+            toggleBtn.textContent = '⚙️ Show Configuration';
+        } else {
+            toggleBtn.textContent = '⚙️ Hide Configuration';
+        }
     }
 });

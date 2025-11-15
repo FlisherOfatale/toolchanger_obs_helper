@@ -142,6 +142,18 @@
             </div>
           </div>
 
+          <!-- Tool-change trigger configuration -->
+          <div class="config-group">
+            <h3 style="color: #ce9178; margin-bottom: 10px">Tool-change Log Triggers</h3>
+            <p style="font-size: 12px; color: #9cdcfe; margin-bottom: 8px">Configure the log text used by Moonraker to detect toolchanges. Defaults shown without the leading <code>echo: </code> prefix.</p>
+
+            <label for="trigger-toolchanging">Tool Change Start Trigger (default: <code>Toolchange Starting</code>):</label>
+            <input type="text" id="trigger-toolchanging" value="Toolchange Starting" placeholder="Toolchange Starting" />
+
+            <label for="trigger-printing" style="margin-top: 10px">Tool Change Complete Trigger (default: <code>Toolchange Completed</code>):</label>
+            <input type="text" id="trigger-printing" value="Toolchange Completed" placeholder="Toolchange Completed" />
+          </div>
+
           <button
             onclick="resetConfig()"
             style="background-color: #8b4513; width: 100%; margin-top: 10px"
