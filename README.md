@@ -4,7 +4,11 @@ Scene changer for OBS Studio, triggered on Printer Toolchange
 The purpose of this python script is to trigger a scene change on OBS, when the printer initiate and complete a Toolchange.
 
 # Disclaimer
-This is a WIP, unpolished, with some bad practice, poor error handling, etc...
+* This is a work in progress 
+* This project is partially vibe coded with Github Copilot AI Agent
+* There 
+*
+
 I ran it from my PC, should work from your printer directly but I would wait for a more polished version for that.
 
 # Configuration

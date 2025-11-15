@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>🎥 Moonraker OBS Scene Changer</h1>
+    <h1>Flisher's Toolchanger OBS Scene Changer</h1>
     
+    <div class="main-layout">
+        <div class="left-column">
     <div class="status-container">
         <div id="status-moonraker" class="status disconnected">
             Moonraker: Disconnected
@@ -17,12 +19,23 @@
             OBS: Disconnected
         </div>
     </div>
-
-    <div class="main-layout">
-        <div class="left-column">
-    <button id="toggle-config-btn" onclick="toggleConfig()" style="width: 100%; margin-bottom: 20px;">
-        ⚙️ Show Configuration
-    </button>
+        <div class="instructions hidden" id="instructions-panel">
+            <h2>Quick Instructions</h2>
+            <ul>
+                <li>Connect OBS and Moonraker using the buttons below.</li>
+                <li>Refresh scenes so the dropdowns match OBS.</li>
+                <li>Use the manual switches when needed.</li>
+                <li>Start the virtual camera preview to monitor the feed.</li>
+            </ul>
+        </div>
+    <div class="config-toggle-row">
+        <button id="toggle-config-btn" onclick="toggleConfig()" class="config-toggle-primary">
+            ⚙️ Configuration
+        </button>
+        <button id="show-instructions-btn" onclick="toggleInstructions()" class="config-toggle-secondary">
+            📘 Instructions
+        </button>
+    </div>
     <div class="config-section" id="config-section">
         <h2>Configuration</h2>
         
@@ -76,13 +89,26 @@
                 </div>
             </div>
         </div>
+            <div class="scene-trigger-group">
+                <label for="trigger-toolchanging">Tool Change Start Trigger:</label>
+                <input type="text" id="trigger-toolchanging" value="echo: Toolchange Starting" placeholder="Tool change trigger text">
+            </div>
+            <div class="scene-trigger-group">
+                <label for="trigger-printing">Tool Change Complete Trigger:</label>
+                <input type="text" id="trigger-printing" value="echo: Toolchange Completed" placeholder="Tool change trigger text">
+            </div>
 
         <button id="connect-btn" onclick="toggleConnection()">Connect</button>
+    <div class="connection-row">
+        <button id="connect-obs-btn" onclick="handleOBSConnection()">Connect OBS</button>
+        <button id="connect-moonraker-btn" onclick="toggleMoonrakerConnection()">Connect Moonraker</button>
+        <button id="reset-config-btn" onclick="resetConfig()" class="reset-button">Reset Configuration</button>
     </div>
-
-    <div class="config-section">
-        <h2>Activity Log</h2>
-        <div id="log" class="log"></div>
+            <li>Please configure your printer configurationConnect to the OBS and Moonraker services once the button becomes active.</li>
+            <li>Use the refresh button to load the scene list in OBS order.</li>
+            <li>Toggle the auto-switch if you want manual control over scene changes.</li>
+            <li>Enable the virtual camera and preview to monitor the live feed.</li>
+        </ul>
     </div>
         </div>
 
